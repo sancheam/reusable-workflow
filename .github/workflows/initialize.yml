@@ -14,7 +14,7 @@ on:
 
 jobs:
   initialize:
-    runs-on: ubuntu-latest
+    runs-on: [road-runner, small]
     outputs:
       git_tag: ${{ steps.set_git_tag.outputs.git_tag }}
       git_sha_short: ${{ steps.set_git_tag.outputs.git_sha_short }}

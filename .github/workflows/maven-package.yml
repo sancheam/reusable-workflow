@@ -16,7 +16,7 @@ on:
 
   jobs:
     maven_package:
-      runs-on: ubuntu-latest
+      runs-on: [road-runner, small]
       steps:
         - name: Checkout repository
           uses: actions/checkout@v3

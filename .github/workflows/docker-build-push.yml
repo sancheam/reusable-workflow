@@ -28,7 +28,7 @@ on:
     docker_build_push:
       env:
         REGISTRY_URL: registry-emea.app.corpintra.net
-      runs-on: ubuntu-latest
+      runs-on: [road-runner, small]
       steps:
         - name: Checkout repository
           uses: actions/checkout@v3
