@@ -26,7 +26,7 @@ on:
       docker-extra-args:
         required: false
         type: string
-    outpus:
+    outputs:
       image_tag:
         value: ${{ jobs.docker_build_push.outputs.image_tag }}
 jobs:
