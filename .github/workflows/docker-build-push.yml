@@ -35,8 +35,7 @@ jobs:
       REGISTRY_URL: registry-emea.app.corpintra.net
     runs-on: [road-runner, small]
     outputs:
-      image_tag:
-        value: ${{ steps.docker_build_push.outputs.image_tag }} 
+      image_tag: ${{ steps.docker_build_push.outputs.image_tag }} 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
