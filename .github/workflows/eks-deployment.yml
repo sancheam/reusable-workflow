@@ -69,18 +69,17 @@ jobs:
       - name: Configure AWS Credentials 
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets[env.AWS_ACCESS_KEY_ID] }}
+          aws-secret-access-key: ${{ secrets[env.AWS_SECRET_ACCESS_KEY] }}
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/TeamAdmin
+          role-to-assume: arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
           role-session-name: team-admin
 
       - name: Configure Kube Config
         run: |
-          aws eks --profile team-admin --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }} --role-arn arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/TeamAdmin
+          aws eks --profile team-admin --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }} --role-arn arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
 
       - name: Helm Deployment
         run: |
           cd ${{ env.HELM_REPOSITORY_PATH }}/${{ env.HELM_REPOSITORY_DIRECTORY }}/${{ input.helm_name }}
-          helm upgrade --debug --install --wait --timeout 3m0s ${{ input.helm_name }} . -n ${{ input.helm_namespace }} -f ${{ input.values_yaml }} --set-string ${{ input.helm_service_to_enabled }}.image.tag=${{ input.image_tag }} --set ${{ input.helm_service_to_enabled }}.enabled=true
-      
+          helm upgrade --debug --install --wait --timeout 3m0s ${{ inputs.helm_name }} . -n ${{ inputs.helm_namespace }} -f ${{ inputs.values_yaml }} --set-string ${{ inputs.helm_service_to_enabled }}.image.tag=${{ inputs.image_tag }} --set ${{ inputs.helm_service_to_enabled }}.enabled=true
