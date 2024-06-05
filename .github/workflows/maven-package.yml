@@ -3,41 +3,37 @@ name: Maven Package
 on:
   workflow_call:
     inputs:
-      git_tag:
+      git_branch:
         required: true
         type: string
       maven_extra_args:
         required: false
         type: string
-      setup_test_database:
-        required: false
-        type: boolean
-        default: false
 
-  jobs:
-    maven_package:
-      runs-on: [road-runner, small]
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
-          with:
-            ref: ${{ inputs.git_tag }}
-            fetch-depth: 0
+jobs:
+  maven_package:
+    runs-on: [road-runner, small]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.git_branch }}
+          fetch-depth: 0
         
-        - name: Git Pull
-          run: git pull origin ${{ inputs.git_tag }}
+      - name: Git Pull
+        run: git pull origin ${{ inputs.git_branch }}
 
-        - name: Create Test Database
-          if: inputs.setup_test_database == true
-          run: |
-            docker rm -f test-postgres
-            docker run --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d registry-emea.app.corpintra.net/dmo/postgresql@sha256:e1e915f72f648f55356b53cc5a4bc2f0af34b27bb202cd61eb94801c20eaf883
-    
-        - name: Maven Package
-          run: maven package ${{ inputs.maven_extra_args }}
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-        - name: Purge Test Database
-          if: inputs.setup_test_database == true
-          run: |
-            docker stop test-postgres
-            docker rm -f test-postgres
+      - name: Maven Package
+        run: mvn clean package ${{ inputs.maven_extra_args }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: target
