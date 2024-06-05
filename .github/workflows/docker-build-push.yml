@@ -52,13 +52,13 @@ jobs:
         with:
           name: artifact
           path: target
-          
+
       - name: Docker Login
         env:
           ROBOT_REGISTRY_USERNAME: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
-          ROBOT_REGISTRY_USERNAME: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
+          ROBOT_REGISTRY_PASSWORD: ${{ secrets.ROBOT_REGISTRY_PASSWORD }}
         run: |
-          docker login -u="$ROBOT_REGISTRY_USERNAME" -p="$ROBOT_REGISTRY_USERNAME" $REGISTRY_URL
+          docker login -u="$ROBOT_REGISTRY_USERNAME" -p="$ROBOT_REGISTRY_PASSWORD" $REGISTRY_URL
         
       - name: Docker Build and Push
         id: docker_build_push
