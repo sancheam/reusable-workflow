@@ -2,7 +2,7 @@
 name: EKS Deployment
 on:
   workflow_call:
-    secret:
+    secrets:
       ACCOUNT_ID_NONPROD:
         required: true
       AWS_ACCESS_KEY_ID_NONPROD:
