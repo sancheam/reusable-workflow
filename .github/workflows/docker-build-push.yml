@@ -2,7 +2,7 @@
 name: Docker Build and Push
 on:
   workflow_call:
-    secret:
+    secrets:
       ROBOT_REGISTRY_USERNAME:
         required: true
       ROBOT_REGISTRY_PASSWORD:
