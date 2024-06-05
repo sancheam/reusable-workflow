@@ -2,13 +2,9 @@
 name: Initialization
 on:
   workflow_call:
-    inputs:
-      project_name:
-        required: true
-        type: string
     outputs:
-      git_tag:
-        value: ${{ jobs.initialize.outputs.git_tag }}
+      git_branch:
+        value: ${{ jobs.initialize.outputs.git_branch }}
       git_sha_short:
         value: ${{ jobs.initialize.outputs.git_sha_short }}
 
@@ -16,19 +12,19 @@ jobs:
   initialize:
     runs-on: [road-runner, small]
     outputs:
-      git_tag: ${{ steps.set_git_tag.outputs.git_tag }}
-      git_sha_short: ${{ steps.set_git_tag.outputs.git_sha_short }}
+      git_branch: ${{ steps.set_git_branch.outputs.git_branch }}
+      git_sha_short: ${{ steps.set_git_branch.outputs.git_sha_short }}
     steps:
-      - name: Set git tag
-        id: set_git_tag
+      - name: Set git branch
+        id: set_git_branch
         shell: bash
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           if [[ $TAG == "refs/heads/"* ]]; then
-            echo "git_tag=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+            echo "git_branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
             echo "git_sha_short=$(echo ${GITHUB_SHA::6})" >> $GITHUB_OUTPUT
           else
-            echo "git_tag=$(echo $TAG)" >> $GITHUB_OUTPUT
-            echo "git_sha_short-$(echo $TAG)" >> $GITHUB_OUTPUT
+            echo "git_branch=$(echo $TAG)" >> $GITHUB_OUTPUT
+            echo "git_sha_short=$(echo $TAG)" >> $GITHUB_OUTPUT
           fi
       
