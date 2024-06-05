@@ -81,5 +81,5 @@ jobs:
 
       - name: Helm Deployment
         run: |
-          cd ${{ env.HELM_REPOSITORY_PATH }}/${{ env.HELM_REPOSITORY_DIRECTORY }}/${{ input.helm_name }}
+          cd ${{ env.HELM_REPOSITORY_PATH }}/${{ env.HELM_REPOSITORY_DIRECTORY }}/${{ inputs.helm_name }}
           helm upgrade --debug --install --wait --timeout 3m0s ${{ inputs.helm_name }} . -n ${{ inputs.helm_namespace }} -f ${{ inputs.values_yaml }} --set-string ${{ inputs.helm_service_to_enabled }}.image.tag=${{ inputs.image_tag }} --set ${{ inputs.helm_service_to_enabled }}.enabled=true
