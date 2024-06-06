@@ -80,10 +80,10 @@ jobs:
           IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
 
           ls -la
-          
+
           docker buildx build \ 
           --no-cache \
           ${{ inputs.docker-extra-args }} \
-          --push -t $IMAGE_SHA -t $IMAGE_TAG -f Dockerfile .
+          --push -t $IMAGE_SHA -t $IMAGE_TAG ${PWD}
 
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
