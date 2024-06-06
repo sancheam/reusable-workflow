@@ -26,9 +26,9 @@ on:
       git_tag:
         required: true
         type: string
-      docker-extra-args:
+      docker-extra-args:  ## TODO validation
         required: false
-        type: string
+        type: list
     outputs:
       image_tag:
         value: ${{ jobs.maven_package_with_docker.outputs.image_tag }}
@@ -75,6 +75,7 @@ jobs:
           push: true
           context: ${{ github.workspace }}
           dockerfile_name: Dockerfile
+          build-args: ${{ inputs.docker-extra-args }}
           tags: |
             $REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
             $REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
