@@ -40,7 +40,7 @@ jobs:
       PHRASE_PROJECT_ID: ${{ secrets.PHRASE_PROJECT_ID }}
       PHRASE_TOKEN: ${{ secrets.PHRASE_TOKEN }}
       PHRASE_DEV_EN_LOCALE_ID: 295bfb8c33dfb82806569ebce4cfb461
-      LANGUAGES_LIST: "DE, FR, ES, IT"
+      LANGUAGES_LIST: "DE,FR,ES,IT"
     runs-on: [road-runner, small]
     steps:
       - name: Checkout repository
@@ -68,7 +68,7 @@ jobs:
           export IFS=","
           for l in $LANGUAGES_LIST; do
             locale="dev-"+$l
-            lower_locale=$(echo $l | tr '[:upper:][:lower:]')
+            lower_locale=$(echo "$l" | tr '[:upper:]' '[:lower:]')
             downloadedFileName="message."+$lower_locale+".json"
             curl --location --request GET 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/locales/${locale}/download?file_format=simple_json' \
               --header 'Authorization: token ${PHRASE_TOKEN}'  -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName} --create-dir
