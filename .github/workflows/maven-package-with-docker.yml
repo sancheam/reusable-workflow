@@ -26,7 +26,7 @@ on:
       git_tag:
         required: true
         type: string
-      docker-extra-args:  ## TODO validation
+      docker-extra-args:
         required: false
         type: string
     outputs:
@@ -34,8 +34,6 @@ on:
         value: ${{ jobs.maven_package_with_docker.outputs.image_tag }}
 jobs:
   maven_package_with_docker:
-    env:
-      REGISTRY_URL: registry-emea.app.corpintra.net
     runs-on: [road-runner, small]
     outputs:
       image_tag: ${{ steps.image_tag.outputs.image_tag }} 
@@ -67,22 +65,14 @@ jobs:
         run: mvn clean package ${{ inputs.maven_extra_args }}
 
       - name: Docker Build and Push
-        uses: action/docker-build-and-push@v3
-        with:
-          registry_url: $REGISTRY_URL
-          username: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
-          password: ${{ secrets.ROBOT_REGISTRY_PASSWORD }}
-          push: true
-          context: ${{ github.workspace }}
-          dockerfile_name: Dockerfile
-          build_args: |
-            ${{ inputs.docker-extra-args }}
-          tags: |
-            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
-            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
-
-      - name: Output image tag
         id: image_tag
-        run: |
-          IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
-          echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
+        uses: ms-vsm/reusable-workflow/.github/workflows/functions/.docker-build-push.yml@main
+        secrets: inherit
+        with:
+          harbor_project: ${{ inputs.harbor_project }}
+          service_name: ${{ inputs.service_name }}
+          git_branch: ${{ inputs.git_branch }}
+          git_sha_short: ${{ inputs.git_sha_short }}
+          git_tag: ${{ inputs.git_tag }}
+          docker-extra-args: |
+            ${{ inputs.docker-extra-args }}

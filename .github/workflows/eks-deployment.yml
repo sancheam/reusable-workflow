@@ -73,11 +73,14 @@ jobs:
           aws-secret-access-key: ${{ secrets[env.AWS_SECRET_ACCESS_KEY] }}
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
-          role-session-name: team-admin
+
+      - name: Get Caller Identity
+        run: |
+          aws sts get-caller-identity
 
       - name: Configure Kube Config
         run: |
-          aws eks --profile team-admin --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }} --role-arn arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
+          aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }}
 
       - name: Helm Deployment
         run: |

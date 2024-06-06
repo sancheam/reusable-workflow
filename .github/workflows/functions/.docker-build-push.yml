@@ -23,7 +23,7 @@ on:
       git_tag:
         required: true
         type: string
-      docker-extra-args:
+      docker-extra-args:  ## TODO validation
         required: false
         type: string
     outputs:
@@ -35,34 +35,26 @@ jobs:
       REGISTRY_URL: registry-emea.app.corpintra.net
     runs-on: [road-runner, small]
     outputs:
-      image_tag: ${{ steps.docker_build_push.outputs.image_tag }} 
+      image_tag: ${{ steps.image_tag.outputs.image_tag }} 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.git_branch }}
-          fetch-depth: 0
-        
-      - name: Git Pull
-        run: git pull origin ${{ inputs.git_branch }}
-
-      - name: Docker Login
-        env:
-          ROBOT_REGISTRY_USERNAME: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
-          ROBOT_REGISTRY_PASSWORD: ${{ secrets.ROBOT_REGISTRY_PASSWORD }}
-        run: |
-          docker login -u="$ROBOT_REGISTRY_USERNAME" -p="$ROBOT_REGISTRY_PASSWORD" $REGISTRY_URL
-        
       - name: Docker Build and Push
-        id: docker_build_push
+        uses: action/docker-build-and-push@v3
+        with:
+          registry_url: $REGISTRY_URL
+          username: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
+          password: ${{ secrets.ROBOT_REGISTRY_PASSWORD }}
+          push: true
+          context: ${{ github.workspace }}
+          dockerfile_name: Dockerfile
+          build_args: |
+            ${{ inputs.docker-extra-args }}
+          tags: |
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
+
+      - name: Output image tag
+        id: image_tag
         run: |
-          IMAGE_SHA=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
           IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
-
-          docker buildx build \ 
-          --no-cache \
-          ${{ inputs.docker-extra-args }} \
-          --push -t $IMAGE_SHA -t $IMAGE_TAG -f Dockerfile
-
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
           
