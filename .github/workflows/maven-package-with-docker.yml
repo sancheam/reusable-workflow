@@ -79,14 +79,9 @@ jobs:
           IMAGE_SHA=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
           IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
 
-          echo $IMAGE_SHA
-          echo $IMAGE_TAG
-
-          ls -la
-          
           docker buildx build \ 
           --no-cache \
           ${{ inputs.docker-extra-args }} \
-          --push -t $IMAGE_SHA $IMAGE_TAG .
+          --push -t $IMAGE_SHA -t $IMAGE_TAG .
 
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
