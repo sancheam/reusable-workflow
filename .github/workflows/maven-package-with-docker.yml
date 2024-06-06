@@ -75,15 +75,14 @@ jobs:
           push: true
           context: ${{ github.workspace }}
           dockerfile_name: Dockerfile
-          build-args: |
+          build_args: |
             ${{ inputs.docker-extra-args }}
           tags: |
-            $REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
-            $REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
 
       - name: Output image tag
         id: image_tag
         run: |
           IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
-
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
