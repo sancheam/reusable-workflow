@@ -1,12 +1,12 @@
 
-name: Docker Build and Push
+name: Maven Package With Docker
 on:
   workflow_call:
     secrets:
       ROBOT_REGISTRY_USERNAME:
         required: true
       ROBOT_REGISTRY_PASSWORD:
-        required: true
+        required: true  
     inputs:
       harbor_project:
         required: true
@@ -20,6 +20,9 @@ on:
       git_sha_short:
         required: true
         type: string
+      maven_extra_args:
+        required: false
+        type: string
       git_tag:
         required: true
         type: string
@@ -28,9 +31,9 @@ on:
         type: string
     outputs:
       image_tag:
-        value: ${{ jobs.docker_build_push.outputs.image_tag }}
+        value: ${{ jobs.maven_package_with_docker.outputs.image_tag }}
 jobs:
-  docker_build_push:
+  maven_package_with_docker:
     env:
       REGISTRY_URL: registry-emea.app.corpintra.net
     runs-on: [road-runner, small]
@@ -45,6 +48,23 @@ jobs:
         
       - name: Git Pull
         run: git pull origin ${{ inputs.git_branch }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Maven Package
+        run: mvn clean package ${{ inputs.maven_extra_args }}
 
       - name: Docker Login
         env:
@@ -66,4 +86,3 @@ jobs:
           docker push $IMAGE_TAG
 
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
-          
