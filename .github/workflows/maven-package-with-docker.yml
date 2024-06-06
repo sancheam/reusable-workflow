@@ -3,9 +3,9 @@ name: Maven Package With Docker
 on:
   workflow_call:
     secrets:
-      ROBOT_REGISTRY_USERNAME:
+      ROBOT_REGISTRY_USERNAME: ## Need prepare
         required: true
-      ROBOT_REGISTRY_PASSWORD:
+      ROBOT_REGISTRY_PASSWORD: ## Need prepare
         required: true  
     inputs:
       harbor_project:

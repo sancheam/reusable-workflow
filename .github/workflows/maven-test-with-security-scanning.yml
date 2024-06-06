@@ -7,6 +7,10 @@ on:
         required: true
       BLACKDUCK_TOKEN:
         required: true
+      ARTIFACTORY_USERNAME: ## NEED PREPARE
+        required: true
+      ARTIFACTORY_ACCESSTOKEN: ## NEED PREPARE
+        required: true
     inputs:
       git_branch:
         required: true
@@ -52,6 +56,8 @@ jobs:
       BLACKDUCK_TIMEOUT: 300
       BLACKDUCK_PHASE: ${{ inputs.blackduck_phase }}
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
+      ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+      ARTIFACTORY_ACCESSTOKEN: ${{ secrets.ARTIFACTORY_ACCESSTOKEN }}
     runs-on: [road-runner, small]
     steps:
       - name: Checkout repository
@@ -80,7 +86,7 @@ jobs:
       ## Setup Local database
       - name: Setup Postgres for Unit Test
         run: |
-          if [[ ${{ inputs.setup_local_database == 'true' }} ]]; then
+          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
             echo "Setup Postgres for Unit Test"
 
             docker rm -f test-postgres || true
@@ -102,7 +108,7 @@ jobs:
       ## Remove Local database
       - name: Remove Postgres for Unit Test
         run: |
-          if [[ ${{ inputs.setup_local_database == 'true' }} ]]; then
+          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
             echo "Remove Postgres for Unit Test"
             docker rm -f test-postgres || true
           else
@@ -131,7 +137,7 @@ jobs:
 
       - name: BlackDuck Scan
         run: |
-          if [[ ${{ inputs.blackduck_rapid_scan == 'false' }} ]]; then
+          if [[ '${{ inputs.blackduck_rapid_scan }}' == 'false' ]]; then
             echo "Running BlackDuck Scan"
 
             bash <(curl -s https://detect.synopsys.com/detect9.sh)\

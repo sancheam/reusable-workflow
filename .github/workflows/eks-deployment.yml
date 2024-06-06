@@ -17,7 +17,7 @@ on:
         required: true
       AWS_REGION:
         required: true
-      GH_PAT:
+      GH_PAT:           ## Need prepare
         required: true
     inputs:
       aws_environment:
