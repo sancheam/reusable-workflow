@@ -25,8 +25,8 @@ on:
         type: string
       blackduck_rapid_scan:
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
       blackduck_phase:
         required: true
         type: string
@@ -35,8 +35,8 @@ on:
         type: string
       setup_local_database:
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
 jobs:
   security-scanning:
     env: 
@@ -104,7 +104,7 @@ jobs:
           curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
-        if: ${{ inputs.blackduck_rapid_scan == false }}
+        if: ${{ inputs.blackduck_rapid_scan == 'false' }}
         run: |
           bash <(curl -s https://detect.synopsys.com/detect9.sh)\
 		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
@@ -125,7 +125,7 @@ jobs:
             --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
       
       - name: BlackDuck Rapid Scan
-        if: ${{ inputs.blackduck_rapid_scan == true }}
+        if: ${{ inputs.blackduck_rapid_scan == 'true' }}
         run: |
           bash <(curl -s https://detect.synopsys.com/detect9.sh)\
 		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
