@@ -1,0 +1,113 @@
+
+name: Npm Package with Docker
+on:
+  workflow_call:
+    secrets:
+      ROBOT_REGISTRY_USERNAME:
+        required: true
+      ROBOT_REGISTRY_PASSWORD:
+        required: true
+      PHRASE_PROJECT_ID:
+        required: true
+      PRHASE_TOKEN:
+        required: true
+    inputs:
+      harbor_project:
+        required: true
+        type: string
+      service_name:
+        required: true
+        type: string
+      git_branch:
+        required: true
+        type: string
+      git_sha_short:
+        required: true
+        type: string
+      npm-extra-args:   ## TODO validation
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      docker-extra-args:  ## TODO validation
+        required: true
+        type: string
+jobs:
+  angular_package_with_docker:
+    env:
+      REGISTRY_URL: registry-emea.app.corpintra.net
+      PHRASE_PROJECT_ID: ${{ secrets.PHRASE_PROJECT_ID }}
+      PHRASE_TOKEN: ${{ secrets.PHRASE_TOKEN }}
+      PHRASE_DEV_EN_LOCALE_ID: 295bfb8c33dfb82806569ebce4cfb461
+      LANGUAGES_LIST: "DE, FR, ES, IT"
+    runs-on: [road-runner, small]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.git_branch }}
+          fetch-depth: 0
+        
+      - name: Git Pull
+        run: git pull origin ${{ inputs.git_branch }}
+
+      - name: Phrase Language Translation - Upload English Keys
+        run: |
+          curl --location --request POST 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/uploads' \
+            --header 'Authorization: token  ${PHRASE_TOKEN}' \
+            --form 'file=@"./src/assets/i18n/message.en.json"' \
+            --form 'file_format=simple_json' \
+            --form 'locale_id=${PHRASE_DEV_EN_LOCALE_ID}' \
+            --form 'update_translations=true' \
+            --form 'autotranslate=true'
+          sleep 10
+
+      - name: Phrase Language Translation - Download translated files
+        run: |
+          export IFS=","
+          for l in $LANGUAGES_LIST; do
+            locale="dev-"+$l
+            lower_locale=$(echo $l | tr '[:lower:]')
+            downloadedFileName="message."+$lower_locale+".json"
+            curl --location --request GET 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/locales/${locale}/download?file_format=simple_json' \
+              --header 'Authorization: token ${PHRASE_TOKEN}'  -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName} --create-dir
+            chmod 775 ${{ github.workspace }}/src/assets/i18n/
+            sleep 5
+          done
+
+          ls -lrt ./src/assets/i18n/
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Cache local node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      
+      - name: Npm Install
+        run: npm install
+
+      - name: Npm Build
+        run : npm run build -- ${{ inputs.npm-extra-args }}
+
+      - name: Docker Build and Push
+        uses: action/docker-build-and-push@v3
+        with:
+          registry_url: $REGISTRY_URL
+          username: ${{ secrets.ROBOT_REGISTRY_USERNAME }}
+          password: ${{ secrets.ROBOT_REGISTRY_PASSWORD }}
+          push: true
+          context: ${{ github.workspace }}
+          dockerfile_name: Dockerfile
+          build_args: |
+            ${{ inputs.docker-extra-args }}
+          tags: |
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
+            ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.image_tag }}
