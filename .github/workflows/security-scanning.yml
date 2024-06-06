@@ -105,7 +105,7 @@ jobs:
 
       - name: BlackDuck Scan
         if: ${{ inputs.blackduck_rapid_scan == false }}
-        run : |
+        run: |
           bash <(curl -s https://detect.synopsys.com/detect9.sh)\
 		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
 		        --blackduck.api.token='$BLACKDUCK_TOKEN'\
@@ -125,7 +125,7 @@ jobs:
             --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
       
       - name: BlackDuck Rapid Scan
-      if: ${{ inputs.blackduck_rapid_scan == true }}
+        if: ${{ inputs.blackduck_rapid_scan == true }}
         run: |
           bash <(curl -s https://detect.synopsys.com/detect9.sh)\
 		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
