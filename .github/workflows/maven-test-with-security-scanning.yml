@@ -107,7 +107,7 @@ jobs:
             docker rm -f test-postgres || true
           else
             echo "Skip Remove Postgres for Unit Test"
-          if
+          fi
 
       - name: Update sonarqube properties
         run: |
