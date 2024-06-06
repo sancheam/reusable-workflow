@@ -73,7 +73,8 @@ jobs:
           aws-secret-access-key: ${{ secrets[env.AWS_SECRET_ACCESS_KEY] }}
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
-
+          role-skip-session-tagging: true
+          
       - name: Get Caller Identity
         run: |
           aws sts get-caller-identity
