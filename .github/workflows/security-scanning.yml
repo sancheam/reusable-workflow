@@ -104,44 +104,46 @@ jobs:
           curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
-        if: ${{ inputs.blackduck_rapid_scan == 'false' }}
         run: |
-          bash <(curl -s https://detect.synopsys.com/detect9.sh)\
-		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
-		        --blackduck.api.token='$BLACKDUCK_TOKEN'\
-            --detect.timeout="${BLACKDUCK_TIMEOUT}"\
-            --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
-            --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
-            --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-					  --detect.project.version.phase="${BLACKDUCK_PHASE}"\
-            --detect.maven.build.command="--settings settings.xml" \
-            --logging.level.com.synopsys.integration="INFO" \
-            --detect.cleanup=true \
-            --detect.scan.output.path=. \
-            --detect.swift.path=. \
-            --detect.bdio.output.path=. \
-            --detect.risk.report.pdf=true \
-            --detect.maven.excluded.scopes='test' \
-            --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
-      
-      - name: BlackDuck Rapid Scan
-        if: ${{ inputs.blackduck_rapid_scan == 'true' }}
-        run: |
-          bash <(curl -s https://detect.synopsys.com/detect9.sh)\
-		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
-		        --blackduck.api.token='$BLACKDUCK_TOKEN'\
-            --detect.timeout="${BLACKDUCK_TIMEOUT}"\
-            --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
-            --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
-            --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-					  --detect.project.version.phase="${BLACKDUCK_PHASE}"\
-            --detect.maven.build.command="--settings settings.xml" \
-            --logging.level.com.synopsys.integration="INFO" \
-            --detect.cleanup=true \
-            --detect.scan.output.path=. \
-            --detect.swift.path=. \
-            --detect.bdio.output.path=. \
-            --detect.risk.report.pdf=true \
-            --detect.maven.excluded.scopes='test' \
-            --detect.blackduck.scan.mode=RAPID \
-            --detect.blackduck.rapid.compare.mode=BOM_COMPARE_STRICT
+          if [[ ${{ inputs.blackduck_rapid_scan == 'false' }} ]]; then
+            echo "Running BlackDuck Scan"
+
+            bash <(curl -s https://detect.synopsys.com/detect9.sh)\
+              --blackduck.url="https://${BLACKDUCK_SERVER}"\
+              --blackduck.api.token='$BLACKDUCK_TOKEN'\
+              --detect.timeout="${BLACKDUCK_TIMEOUT}"\
+              --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
+              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
+              --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
+              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.maven.build.command="--settings settings.xml" \
+              --logging.level.com.synopsys.integration="INFO" \
+              --detect.cleanup=true \
+              --detect.scan.output.path=. \
+              --detect.swift.path=. \
+              --detect.bdio.output.path=. \
+              --detect.risk.report.pdf=true \
+              --detect.maven.excluded.scopes='test' \
+              --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
+          else
+            echo "Running BlackDuck Rapid Scan"
+
+            bash <(curl -s https://detect.synopsys.com/detect9.sh)\
+              --blackduck.url="https://${BLACKDUCK_SERVER}"\
+              --blackduck.api.token='$BLACKDUCK_TOKEN'\
+              --detect.timeout="${BLACKDUCK_TIMEOUT}"\
+              --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
+              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
+              --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
+              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.maven.build.command="--settings settings.xml" \
+              --logging.level.com.synopsys.integration="INFO" \
+              --detect.cleanup=true \
+              --detect.scan.output.path=. \
+              --detect.swift.path=. \
+              --detect.bdio.output.path=. \
+              --detect.risk.report.pdf=true \
+              --detect.maven.excluded.scopes='test' \
+              --detect.blackduck.scan.mode=RAPID \
+              --detect.blackduck.rapid.compare.mode=BOM_COMPARE_STRICT
+          fi
