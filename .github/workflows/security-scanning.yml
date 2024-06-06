@@ -1,0 +1,147 @@
+
+name: Sonarqube and BlackDuck Scan
+on:
+  workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        required: true
+      BLACKDUCK_TOKEN:
+        required: true
+    inputs:
+      git_branch:
+        required: true
+        type: string
+      git_sha_short:
+        required: true
+        type: string
+      service_name:
+        required: true
+        type: string
+      sonar_branch:
+        required: true
+        type: string
+      blackduck_project_name:
+        required: true
+        type: string
+      blackduck_rapid_scan:
+        required: false
+        type: boolean
+        default: false
+      blackduck_phase:
+        required: true
+        type: string
+      blackduck_project_version:
+        required: true
+        type: string
+      setup_local_database:
+        required: false
+        type: boolean
+        default: false
+jobs:
+  security-scanning:
+    env: 
+      SONAR_HOST: https://go40-sonar.dot.i.mercedes-benz.com
+      SONAR_PROJECT_KEY: ${{ inputs.service_name }}
+      SONAR_BRANCH: ${{ inputs.sonar_branch }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_SCANNER_IMAGE: registry-emea.app.corpintra.net/dockerhub/sonarsource/sonar-scanner-cli:latest
+      BLACKDUCK_SERVER: bdscan.i.mercedes-benz.com
+      BLACKDUCK_TOKEN: ${{ secrets.BLACKDUCK_TOKEN }}
+      BLACKDUCK_PROJECT_NAME: ${{ inputs.blackduck_project_name }}
+      BLACKDUCK_SOURCE_CODE: ${{ inputs.service_name }}
+      BLACKDUCK_TIMEOUT: 300
+      BLACKDUCK_PHASE: ${{ inputs.blackduck_phase }}
+      BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
+    runs-on: [road-runner, small]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.git_branch }}
+          fetch-depth: 0
+        
+      - name: Git Pull
+        run: git pull origin ${{ inputs.git_branch }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+    
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      ## Setup Local database
+
+      - name: Maven Package
+        run: mvn clean package
+
+      ## Remove Local database
+
+      - name: Update sonarqube properties
+        run: |
+          sed -i "s#SONAR_HOST_URL#$SONAR_HOST#" sonar-project.properties
+          sed -i "s#SONAR_LOGIN#$SONAR_TOKEN#" sonar-project.properties
+          sed -i "s#SONAR_PROJECT_KEY#$SONAR_PROJECT_KEY#" sonar-project.properties
+          sed -i "s#SONAR_BRANCH#$SONAR_BRANCH#" sonar-project.properties
+
+      - name: Sonarqube Scan
+        run: |
+          docker run \
+            --rm \
+            -e SONAR_HOST_URL="http://${SONAR_HOST}"  \
+            -v "${{ github.workspace }}:/usr/src" \
+            ${SONAR_SCANNER_IMAGE}
+
+      - name: Sonarqube Quality Gate
+        run: |
+          curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
+
+      - name: BlackDuck Scan
+        if: ${{ inputs.blackduck_rapid_scan == false }}
+        run : |
+          bash <(curl -s https://detect.synopsys.com/detect9.sh)\
+		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
+		        --blackduck.api.token='$BLACKDUCK_TOKEN'\
+            --detect.timeout="${BLACKDUCK_TIMEOUT}"\
+            --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
+            --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
+            --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
+					  --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+            --detect.maven.build.command="--settings settings.xml" \
+            --logging.level.com.synopsys.integration="INFO" \
+            --detect.cleanup=true \
+            --detect.scan.output.path=. \
+            --detect.swift.path=. \
+            --detect.bdio.output.path=. \
+            --detect.risk.report.pdf=true \
+            --detect.maven.excluded.scopes='test' \
+            --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
+      
+      - name: BlackDuck Rapid Scan
+      if: ${{ inputs.blackduck_rapid_scan == true }}
+        run: |
+          bash <(curl -s https://detect.synopsys.com/detect9.sh)\
+		        --blackduck.url="https://${BLACKDUCK_SERVER}"\
+		        --blackduck.api.token='$BLACKDUCK_TOKEN'\
+            --detect.timeout="${BLACKDUCK_TIMEOUT}"\
+            --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
+            --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
+            --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
+					  --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+            --detect.maven.build.command="--settings settings.xml" \
+            --logging.level.com.synopsys.integration="INFO" \
+            --detect.cleanup=true \
+            --detect.scan.output.path=. \
+            --detect.swift.path=. \
+            --detect.bdio.output.path=. \
+            --detect.risk.report.pdf=true \
+            --detect.maven.excluded.scopes='test' \
+            --detect.blackduck.scan.mode=RAPID \
+            --detect.blackduck.rapid.compare.mode=BOM_COMPARE_STRICT

@@ -74,7 +74,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
           role-skip-session-tagging: true
-          
+
       - name: Get Caller Identity
         run: |
           aws sts get-caller-identity
@@ -86,4 +86,4 @@ jobs:
       - name: Helm Deployment
         run: |
           cd ${{ env.HELM_REPOSITORY_PATH }}/${{ env.HELM_REPOSITORY_DIRECTORY }}/${{ inputs.helm_name }}
-          helm upgrade --debug --install --wait --timeout 3m0s ${{ inputs.helm_name }} . -n ${{ inputs.helm_namespace }} -f ${{ inputs.values_yaml }} --set-string ${{ inputs.helm_service_to_enabled }}.image.tag=${{ inputs.image_tag }} --set ${{ inputs.helm_service_to_enabled }}.enabled=true
+          helm upgrade --debug --install --wait --timeout 10m0s ${{ inputs.helm_name }} . -n ${{ inputs.helm_namespace }} -f ${{ inputs.values_yaml }} --set-string ${{ inputs.helm_service_to_enabled }}.image.tag=${{ inputs.image_tag }} --set ${{ inputs.helm_service_to_enabled }}.enabled=true
