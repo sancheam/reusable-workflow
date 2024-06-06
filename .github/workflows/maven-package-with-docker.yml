@@ -82,6 +82,6 @@ jobs:
           docker buildx build \ 
           --no-cache \
           ${{ inputs.docker-extra-args }} \
-          --push -t $IMAGE_SHA -t $IMAGE_TAG -f Dockerfile
+          --push -t $IMAGE_SHA -t $IMAGE_TAG -f Dockerfile .
 
           echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
