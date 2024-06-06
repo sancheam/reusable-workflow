@@ -79,6 +79,8 @@ jobs:
           IMAGE_SHA=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
           IMAGE_TAG=$REGISTRY_URL/${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_tag }}
 
+          ls -la
+          
           docker buildx build \ 
           --no-cache \
           ${{ inputs.docker-extra-args }} \
