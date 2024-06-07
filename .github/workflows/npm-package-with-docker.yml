@@ -39,6 +39,7 @@ jobs:
   angular_package_with_docker:
     env:
       REGISTRY_URL: registry-emea.app.corpintra.net
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       PHRASE_PROJECT_ID: ${{ secrets.PHRASE_PROJECT_ID }}
       PHRASE_TOKEN: ${{ secrets.PHRASE_TOKEN }}
       PHRASE_DEV_EN_LOCALE_ID: 295bfb8c33dfb82806569ebce4cfb461
