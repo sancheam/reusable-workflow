@@ -83,37 +83,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # ## Setup Local database
-      # - name: Setup Postgres for Unit Test
-      #   run: |
-      #     if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
-      #       echo "Setup Postgres for Unit Test"
+      ## Setup Local database
+      - name: Setup Postgres for Unit Test
+        run: |
+          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
+            echo "Setup Postgres for Unit Test"
 
-      #       docker rm -f test-postgres || true
-      #       docker run --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d registry-emea.app.corpintra.net/dmo/postgresql@sha256:e1e915f72f648f55356b53cc5a4bc2f0af34b27bb202cd61eb94801c20eaf883
-      #       until nc -z localhost 5432
-      #       do 
-      #         echo "waiting for postgres container..."
-      #         sleep 1.0
-      #       done
+            docker rm -f test-postgres || true
+            docker run --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d registry-emea.app.corpintra.net/dmo/postgresql@sha256:e1e915f72f648f55356b53cc5a4bc2f0af34b27bb202cd61eb94801c20eaf883
+            until nc -z localhost 5432
+            do 
+              echo "waiting for postgres container..."
+              sleep 1.0
+            done
 
-      #       echo "Postgres is up and running"
-      #     else
-      #       echo "Skip Setup Postgres for Unit Test"
-      #     fi
+            echo "Postgres is up and running"
+          else
+            echo "Skip Setup Postgres for Unit Test"
+          fi
 
-      # - name: Maven Package
-      #   run: mvn clean package
+      - name: Maven Package
+        run: mvn clean package
 
-      # ## Remove Local database
-      # - name: Remove Postgres for Unit Test
-      #   run: |
-      #     if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
-      #       echo "Remove Postgres for Unit Test"
-      #       docker rm -f test-postgres || true
-      #     else
-      #       echo "Skip Remove Postgres for Unit Test"
-      #     fi
+      ## Remove Local database
+      - name: Remove Postgres for Unit Test
+        run: |
+          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
+            echo "Remove Postgres for Unit Test"
+            docker rm -f test-postgres || true
+          else
+            echo "Skip Remove Postgres for Unit Test"
+          fi
 
       - name: Update sonarqube properties and settings.xml
         run: |
@@ -126,18 +126,18 @@ jobs:
 
           cat sonar-project.properties
           cat settings.xml
-          
-      # - name: Sonarqube Scan
-      #   run: |
-      #     docker run \
-      #       --rm \
-      #       -e SONAR_HOST_URL="http://${SONAR_HOST}"  \
-      #       -v "${{ github.workspace }}:/usr/src" \
-      #       ${SONAR_SCANNER_IMAGE}
 
-      # - name: Sonarqube Quality Gate
-      #   run: |
-      #     curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
+      - name: Sonarqube Scan
+        run: |
+          docker run \
+            --rm \
+            -e SONAR_HOST_URL="http://${SONAR_HOST}"  \
+            -v "${{ github.workspace }}:/usr/src" \
+            ${SONAR_SCANNER_IMAGE}
+
+      - name: Sonarqube Quality Gate
+        run: |
+          curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
         run: |

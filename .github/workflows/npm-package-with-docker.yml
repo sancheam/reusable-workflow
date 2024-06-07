@@ -11,9 +11,7 @@ on:
         required: true
       PRHASE_TOKEN:
         required: true
-      ARTIFACTORY_USERNAME:
-        required: true
-      ARTIFACTORY_ACCESSTOKEN:
+      NPM_TOKEN:
         required: true
     inputs:
       harbor_project:
@@ -96,7 +94,6 @@ jobs:
       
       - name: Update npmrc file
         run: |
-          NPM_TOKEN="$(echo -n '$ARTIFACTORY_USERNAME:$ARTIFACTORY_ACCESSTOKEN' | base64)"
           sed -i s/AUTH_TOKEN/$NPM_TOKEN/ .npmrc
           cat .npmrc
 
