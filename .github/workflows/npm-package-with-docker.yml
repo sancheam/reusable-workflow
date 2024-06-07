@@ -101,7 +101,7 @@ jobs:
           sed -i s/AUTH_TOKEN/$NPM_TOKEN/ .npmrc
 
       - name: Npm Install
-        run: npm install
+        run: npm install --force
 
       - name: Npm Build
         run : npm run build -- ${{ inputs.npm-extra-args }}
