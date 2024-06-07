@@ -73,15 +73,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          # cache: 'maven'
     
-      - name: Cache local Maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      # - name: Cache local Maven repository
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2/repository
+      #     key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-maven-
 
       ## Setup Local database
       - name: Setup Postgres for Unit Test
@@ -122,7 +122,6 @@ jobs:
           sed -i "s#SONAR_PROJECT_KEY#$SONAR_PROJECT_KEY#" sonar-project.properties
           sed -i "s#SONAR_BRANCH#$SONAR_BRANCH#" sonar-project.properties
 
-      ## Test next time
       # - name: Sonarqube Scan
       #   run: |
       #     docker run \
