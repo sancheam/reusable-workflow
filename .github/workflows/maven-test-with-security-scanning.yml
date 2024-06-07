@@ -124,6 +124,9 @@ jobs:
           sed -i "s#REPO_USERNAME#$ARTIFACTORY_USERNAME#" settings.xml
           sed -i "s#REPO_TOKEN#$ARTIFACTORY_ACCESSTOKEN#" settings.xml
 
+          cat sonar-project.properties
+          cat settings.xml
+          
       # - name: Sonarqube Scan
       #   run: |
       #     docker run \
