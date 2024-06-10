@@ -6,7 +6,11 @@ on:
       ROBOT_REGISTRY_USERNAME: ## Need prepare
         required: true
       ROBOT_REGISTRY_PASSWORD: ## Need prepare
-        required: true  
+        required: true
+      EVENTHUB_TRUSTSTORE_NONPROD:
+        required: true 
+      EVENTHUB_KEYSTORE_NONPROD:
+        required: true
     inputs:
       harbor_project:
         required: true
@@ -75,7 +79,7 @@ jobs:
         ## In future will copies both files, and control as environmnet variable to use which files
       - name: Get eventhub truststore file
         run: |
-          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
+          if [[ '${{ inputs.setup_eventhub_truststore }}' == 'true' ]]; then
             echo "${{ secrets[env.EVENTHUB_TRUSTSTORE] }}" | base64 --decode > truststore.p12
             echo "${{ secrets[env.EVENTHUB_KEYSTORE] }}" | base64 --decode > vsm.stockify.keystore.p12
             cp truststore.p12 src/main/resources/
