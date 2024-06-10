@@ -7,9 +7,7 @@ on:
         required: true
       BLACKDUCK_TOKEN:
         required: true
-      ARTIFACTORY_USERNAME: ## NEED PREPARE
-        required: true
-      ARTIFACTORY_ACCESSTOKEN: ## NEED PREPARE
+      AUTH_TOKEN:
         required: true
     inputs:
       git_branch:
@@ -37,13 +35,13 @@ on:
       blackduck_project_version:
         required: true
         type: string
-      setup_local_database:
-        required: false
+      npm-test-extra-args:
+        required: true
         type: string
-        default: 'false'
+
 jobs:
   security-scanning:
-    env: 
+    env:
       SONAR_HOST: https://go40-sonar.dot.i.mercedes-benz.com
       SONAR_PROJECT_KEY: ${{ inputs.service_name }}
       SONAR_BRANCH: ${{ inputs.sonar_branch }}
@@ -56,8 +54,6 @@ jobs:
       BLACKDUCK_TIMEOUT: 300
       BLACKDUCK_PHASE: ${{ inputs.blackduck_phase }}
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
-      ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-      ARTIFACTORY_ACCESSTOKEN: ${{ secrets.ARTIFACTORY_ACCESSTOKEN }}
     runs-on: [road-runner, small]
     steps:
       - name: Checkout repository
@@ -65,68 +61,41 @@ jobs:
         with:
           ref: ${{ inputs.git_branch }}
           fetch-depth: 0
-        
+          
       - name: Git Pull
         run: git pull origin ${{ inputs.git_branch }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-node@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          # cache: 'maven'
-    
-      - name: Cache local Maven repository
+          node-version: 20
+
+      - name: Cache local node modules
         uses: actions/cache@v3
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-maven-
+            ${{ runner.os }}-npm-
 
-      ## Setup Local database
-      - name: Setup Postgres for Unit Test
+      - name: Update npmrc file
         run: |
-          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
-            echo "Setup Postgres for Unit Test"
+          sed -i s/AUTH_TOKEN/$NPM_TOKEN/ .npmrc
 
-            docker rm -f test-postgres || true
-            docker run --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d registry-emea.app.corpintra.net/dmo/postgresql@sha256:e1e915f72f648f55356b53cc5a4bc2f0af34b27bb202cd61eb94801c20eaf883
-            until nc -z localhost 5432
-            do 
-              echo "waiting for postgres container..."
-              sleep 1.0
-            done
+      - name: Npm Install
+        run: npm install --force
 
-            echo "Postgres is up and running"
-          else
-            echo "Skip Setup Postgres for Unit Test"
-          fi
-
-      - name: Maven Package
-        run: mvn clean package
-
-      ## Remove Local database
-      - name: Remove Postgres for Unit Test
-        run: |
-          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
-            echo "Remove Postgres for Unit Test"
-            docker rm -f test-postgres || true
-          else
-            echo "Skip Remove Postgres for Unit Test"
-          fi
-
+      - name: Npm Test
+        run: npm run test -- ${{ inputs.npm-test-extra-args }}
+      
       - name: Update sonarqube properties and settings.xml
         run: |
           sed -i "s#SONAR_HOST_URL#$SONAR_HOST#" sonar-project.properties
           sed -i "s#SONAR_LOGIN#$SONAR_TOKEN#" sonar-project.properties
           sed -i "s#SONAR_PROJECT_KEY#$SONAR_PROJECT_KEY#" sonar-project.properties
           sed -i "s#SONAR_BRANCH#$SONAR_BRANCH#" sonar-project.properties
-          sed -i "s#REPO_USERNAME#$ARTIFACTORY_USERNAME#" settings.xml
-          sed -i "s#REPO_TOKEN#$ARTIFACTORY_ACCESSTOKEN#" settings.xml
 
           cat sonar-project.properties
-          cat settings.xml
-
+      
       - name: Sonarqube Scan
         run: |
           docker run \
@@ -151,18 +120,16 @@ jobs:
               --blackduck.api.token='$BLACKDUCK_TOKEN'\
               --detect.timeout="${BLACKDUCK_TIMEOUT}"\
               --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
-              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
-              --detect.maven.build.command="--settings settings.xml" \
+					    --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --logging.level.com.synopsys.integration="INFO" \
               --detect.cleanup=true \
               --detect.scan.output.path=. \
               --detect.swift.path=. \
               --detect.bdio.output.path=. \
               --detect.risk.report.pdf=true \
-              --detect.maven.excluded.scopes='test' \
-              --detect.policy.check.fail.on.severities=BLOCKER,CRITICAL,MAJOR
+              -–detect.notices.report=true 
           else
             echo "Running BlackDuck Rapid Scan"
 
@@ -171,17 +138,14 @@ jobs:
               --blackduck.api.token='$BLACKDUCK_TOKEN'\
               --detect.timeout="${BLACKDUCK_TIMEOUT}"\
               --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
-              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
-              --detect.maven.build.command="--settings settings.xml" \
-              --logging.level.com.synopsys.integration="INFO" \
+					    --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --detect.cleanup=true \
               --detect.scan.output.path=. \
               --detect.swift.path=. \
               --detect.bdio.output.path=. \
               --detect.risk.report.pdf=true \
-              --detect.maven.excluded.scopes='test' \
-              --detect.blackduck.scan.mode=RAPID \
-              --detect.blackduck.rapid.compare.mode=BOM_COMPARE_STRICT
+              --detect.blackduck.scan.mode="RAPID" \
+              --detect.bom.aggregate.name="aggregated.bdio" \
           fi
