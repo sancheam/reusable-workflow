@@ -29,10 +29,21 @@ on:
       docker-extra-args:  ## TODO validation
         required: false
         type: string
+      setup_eventhub_truststore:
+        required: false
+        type: string
+        default: 'false'
+      eventhub_truststore_environment:
+        required: false
+        type: string
+        default: NONPROD
+        
 jobs:
   maven_package_with_docker:
     env:
       REGISTRY_URL: registry-emea.app.corpintra.net
+      EVENTHUB_TRUSTSTORE: EVENTHUB_TRUSTSTORE_${{ inputs.eventhub_truststore_environment }}
+      EVENTHUB_KEYSTORE: EVENTHUB_KEYSTORE_${{ inputs.eventhub_truststore_environment }}
     runs-on: [road-runner, small]
     steps:
       - name: Checkout repository
@@ -60,6 +71,18 @@ jobs:
 
       - name: Maven Package
         run: mvn clean package ${{ inputs.maven_extra_args }}
+
+        ## In future will copies both files, and control as environmnet variable to use which files
+      - name: Get eventhub truststore file
+        run: |
+          if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
+            echo "${{ secrets[env.EVENTHUB_TRUSTSTORE] }}" | base64 --decode > truststore.p12
+            echo "${{ secrets[env.EVENTHUB_KEYSTORE] }}" | base64 --decode > vsm.stockify.keystore.p12
+            cp truststore.p12 src/main/resources/
+            cp vsm.stockify.keystore.p12 src/main/resources/
+
+            ls -lrt src/main/resources/
+          fi
 
       - name: Docker Build and Push
         uses: action/docker-build-and-push@v3
