@@ -7,7 +7,7 @@ on:
         required: true
       BLACKDUCK_TOKEN:
         required: true
-      AUTH_TOKEN:
+      NPM_TOKEN:
         required: true
     inputs:
       git_branch:
@@ -54,6 +54,7 @@ jobs:
       BLACKDUCK_TIMEOUT: 300
       BLACKDUCK_PHASE: ${{ inputs.blackduck_phase }}
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     runs-on: [road-runner, small]
     steps:
       - name: Checkout repository
