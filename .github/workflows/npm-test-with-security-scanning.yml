@@ -121,7 +121,7 @@ jobs:
               --detect.timeout="${BLACKDUCK_TIMEOUT}"\
               --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
               --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-					    --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
               --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --logging.level.com.synopsys.integration="INFO" \
               --detect.cleanup=true \
@@ -139,7 +139,7 @@ jobs:
               --detect.timeout="${BLACKDUCK_TIMEOUT}"\
               --detect.project.name="${BLACKDUCK_PROJECT_NAME}"\
               --detect.project.version.name="${BLACKDUCK_PROJECT_VERSION}"\
-					    --detect.project.version.phase="${BLACKDUCK_PHASE}"\
+              --detect.project.version.phase="${BLACKDUCK_PHASE}"\
               --detect.code.location.name="${BLACKDUCK_SOURCE_CODE}"\
               --detect.cleanup=true \
               --detect.scan.output.path=. \
