@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       version_file:
-        description: 'The path to the version file'
+        type: string
         required: false
         default: 'pom.xml'
     outputs:
@@ -38,7 +38,7 @@ jobs:
       - name: Install xmlstarlet
         run: |
           apt-get install xmlstarlet
-          
+
       - name: Get version
         id: get_version
         run: |
