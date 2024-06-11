@@ -113,8 +113,6 @@ jobs:
           push: true
           context: ${{ github.workspace }}
           dockerfile_name: Dockerfile
-          build_args: |
-            ${{ inputs.docker-extra-args }}
           tags: |
             ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.git_sha_short }}
             ${{ inputs.harbor_project }}/${{ inputs.service_name }}:${{ inputs.image_tag }}

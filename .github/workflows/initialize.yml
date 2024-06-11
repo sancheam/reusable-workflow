@@ -2,18 +2,25 @@
 name: Initialization
 on:
   workflow_call:
+    inputs:
+      version_file:
+        description: 'The path to the version file'
+        required: false
+        default: 'pom.xml'
     outputs:
       git_branch:
         value: ${{ jobs.initialize.outputs.git_branch }}
       git_sha_short:
         value: ${{ jobs.initialize.outputs.git_sha_short }}
-
+      version:
+        value: ${{ jobs.initialize.outputs.version }}
 jobs:
   initialize:
     runs-on: [road-runner, small]
     outputs:
       git_branch: ${{ steps.set_git_branch.outputs.git_branch }}
       git_sha_short: ${{ steps.set_git_branch.outputs.git_sha_short }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Set git branch
         id: set_git_branch
@@ -27,4 +34,20 @@ jobs:
             echo "git_branch=$(echo $TAG)" >> $GITHUB_OUTPUT
             echo "git_sha_short=$(echo $TAG)" >> $GITHUB_OUTPUT
           fi
+    
+      - name: Install xmlstarlet
+        run: |
+          apt-get install xmlstarlet
+          
+      - name: Get version
+        id: get_version
+        run: |
+          if [[ '${{ inputs.version_file }}' == 'pom.xml' ]]; then
+            VERSION=$(xml sel -t -m "//_:project" -v _:version pom.xml)
+          else
+            VERSION=$(jq -r .version package.json)
+          fi
+
+          echo "version=$(echo $VERSION)" >> $GITHUB_OUTPUT
+
       
