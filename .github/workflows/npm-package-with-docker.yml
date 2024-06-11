@@ -32,9 +32,6 @@ on:
       image_tag:
         required: true
         type: string
-      docker-extra-args:  ## TODO validation
-        required: true
-        type: string
 jobs:
   angular_package_with_docker:
     env:
