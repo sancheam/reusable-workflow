@@ -35,6 +35,15 @@ jobs:
             echo "git_sha_short=$(echo $TAG)" >> $GITHUB_OUTPUT
           fi
     
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.set_git_branch.outputs.git_branch }}
+          fetch-depth: 0
+        
+      - name: Git Pull
+        run: git pull origin ${{ steps.set_git_branch.outputs.git_branch }}
+
       - name: Install xmlstarlet
         run: |
           sudo apt-get install xmlstarlet
