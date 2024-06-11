@@ -43,7 +43,7 @@ jobs:
         id: get_version
         run: |
           if [[ '${{ inputs.version_file }}' == 'pom.xml' ]]; then
-            VERSION=$(xml sel -t -m "//_:project" -v _:version pom.xml)
+            VERSION=$(xmlstarlet sel -t -m "//_:project" -v _:version pom.xml)
           else
             VERSION=$(jq -r .version package.json)
           fi
