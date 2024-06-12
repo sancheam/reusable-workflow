@@ -75,10 +75,10 @@ jobs:
       - name: Get eventhub truststore file
         run: |
           if [[ '${{ inputs.setup_eventhub_truststore }}' == 'true' ]]; then
-            echo "${{ secrets[env.EVENTHUB_TRUSTSTORE_NONPROD] }}" | base64 --decode > truststore.p12
-            echo "${{ secrets[env.EVENTHUB_KEYSTORE_NONPROD] }}" | base64 --decode > vsm.stockify.keystore.p12
-            echo "${{ secrets[env.EVENTHUB_TRUSTSTORE_PROD] }}" | base64 --decode > truststore-prod.p12
-            echo "${{ secrets[env.EVENTHUB_KEYSTORE_PROD] }}" | base64 --decode > vsm.stockify.keystore-prod.p12
+            echo "${{ secrets.EVENTHUB_TRUSTSTORE_NONPROD }}" | base64 --decode > truststore.p12
+            echo "${{ secrets.EVENTHUB_KEYSTORE_NONPROD }}" | base64 --decode > vsm.stockify.keystore.p12
+            echo "${{ secrets.EVENTHUB_TRUSTSTORE_PROD }}" | base64 --decode > truststore-prod.p12
+            echo "${{ secrets.EVENTHUB_KEYSTORE_PROD }}" | base64 --decode > vsm.stockify.keystore-prod.p12
 
             cp truststore.p12 src/main/resources/
             cp vsm.stockify.keystore.p12 src/main/resources/
