@@ -63,7 +63,7 @@ jobs:
           repository: ${{ env.HELM_REPOSITORY }}
           token: ${{ secrets.GH_PAT }}
           path: ${{ env.HELM_REPOSITORY_PATH }}
-          ref: ${{ inputs.helm_git_branch }}
+          ref: main
           fetch-depth: 0 
       
       - name: Configure AWS Credentials 
