@@ -10,6 +10,8 @@ on:
     outputs:
       git_branch:
         value: ${{ jobs.initialize.outputs.git_branch }}
+      git_head_branch:
+        value: ${{ jobs.initialize.outputs.git_head_branch }}
       git_sha_short:
         value: ${{ jobs.initialize.outputs.git_sha_short }}
       version:
@@ -19,6 +21,7 @@ jobs:
     runs-on: [road-runner, small]
     outputs:
       git_branch: ${{ steps.set_git_branch.outputs.git_branch }}
+      git_head_branch: ${{ steps.set_git_branch.outputs.git_head_branch }}
       git_sha_short: ${{ steps.set_git_branch.outputs.git_sha_short }}
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -29,6 +32,7 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/}"
           if [[ $TAG == "refs/heads/"* ]]; then
             echo "git_branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+            echo "git_head_branch=$(echo ${GITHUB_HEAD_REF#refs/heads/})" >> $GITHUB_OUTPUT
             echo "git_sha_short=$(echo ${GITHUB_SHA::6})" >> $GITHUB_OUTPUT
           else
             echo "git_branch=$(echo $TAG)" >> $GITHUB_OUTPUT
