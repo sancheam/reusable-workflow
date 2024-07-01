@@ -73,29 +73,29 @@ jobs:
             
           curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-DE/download?file_format=simple_json' \
             --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
-            -o ${{ github.workspace }}/src/assets/i18n/message.+de+.json
+            -o ${{ github.workspace }}/src/assets/i18n/message.de.json
 
           curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-FR/download?file_format=simple_json' \
             --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
-            -o ${{ github.workspace }}/src/assets/i18n/message.+fr+.json
+            -o ${{ github.workspace }}/src/assets/i18n/message.fr.json
 
           curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-ES/download?file_format=simple_json' \
             --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
-            -o ${{ github.workspace }}/src/assets/i18n/message.+es+.json
+            -o ${{ github.workspace }}/src/assets/i18n/message.es.json
 
           curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-IT/download?file_format=simple_json' \
             --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
-            -o ${{ github.workspace }}/src/assets/i18n/message.+it+.json
+            -o ${{ github.workspace }}/src/assets/i18n/message.it.json
 
           chmod 775 ${{ github.workspace }}/src/assets/i18n/
           # done
 
           ls -lrt ./src/assets/i18n/
-          cat ./src/assets/i18n/message.+de+.json
-          cat ./src/assets/i18n/message.+fr+.json
-          cat ./src/assets/i18n/message.+es+.json
-          cat ./src/assets/i18n/message.+it+.json
-          
+          cat ./src/assets/i18n/message.de.json
+          cat ./src/assets/i18n/message.fr.json
+          cat ./src/assets/i18n/message.es.json
+          cat ./src/assets/i18n/message.it.json
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
