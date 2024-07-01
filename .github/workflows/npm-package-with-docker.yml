@@ -70,9 +70,9 @@ jobs:
             locale="dev-"$l
             lower_locale=$(echo "$l" | tr '[:upper:]' '[:lower:]')
             downloadedFileName="message."+$lower_locale+".json"
-
+            
             curl --ssl-no-revoke --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/${locale}/download?file_format=simple_json' \
-              --header 'Authorization: token ${PHRASE_TOKEN}' \
+              --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
               -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName} --create-dir
 
             chmod 775 ${{ github.workspace }}/src/assets/i18n/
