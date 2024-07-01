@@ -65,22 +65,37 @@ jobs:
 
       - name: Phrase Language Translation - Download translated files
         run: |
-          export IFS=","
-          for l in $LANGUAGES_LIST; do
-            locale="dev-"$l
-            lower_locale=$(echo "$l" | tr '[:upper:]' '[:lower:]')
-            downloadedFileName="message."+$lower_locale+".json"
+          #export IFS=","
+          # for l in $LANGUAGES_LIST; do
+          #   locale="dev-"$l
+          #   lower_locale=$(echo "$l" | tr '[:upper:]' '[:lower:]')
+          #   downloadedFileName="message."+$lower_locale+".json"
             
-            curl --location --request GET 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/locales/dev-DE/download?file_format=simple_json' \
-              --header 'Authorization: token ${PHRASE_TOKEN}' \
-              -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName}
+          curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-DE/download?file_format=simple_json' \
+            --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
+            -o ${{ github.workspace }}/src/assets/i18n/message.+de+.json
 
-            chmod 775 ${{ github.workspace }}/src/assets/i18n/
-            sleep 5
-          done
+          curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-FR/download?file_format=simple_json' \
+            --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
+            -o ${{ github.workspace }}/src/assets/i18n/message.+fr+.json
+
+          curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-ES/download?file_format=simple_json' \
+            --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
+            -o ${{ github.workspace }}/src/assets/i18n/message.+es+.json
+
+          curl --location --request GET 'https://api.phrase.com/v2/projects/fc342bce91a423364be8165aa2d2950c/locales/dev-IT/download?file_format=simple_json' \
+            --header 'Authorization: token c3bc28a078c336630410698272068b9d6e2cd0063f6fd383c8778cec5c9c5ac1' \
+            -o ${{ github.workspace }}/src/assets/i18n/message.+it+.json
+
+          chmod 775 ${{ github.workspace }}/src/assets/i18n/
+          # done
 
           ls -lrt ./src/assets/i18n/
           cat ./src/assets/i18n/message.+de+.json
+          cat ./src/assets/i18n/message.+fr+.json
+          cat ./src/assets/i18n/message.+es+.json
+          cat ./src/assets/i18n/message.+it+.json
+          
       - uses: actions/setup-node@v4
         with:
           node-version: 20
