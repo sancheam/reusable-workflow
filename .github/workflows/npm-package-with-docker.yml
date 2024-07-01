@@ -70,7 +70,11 @@ jobs:
             locale="dev-"$l
             lower_locale=$(echo "$l" | tr '[:upper:]' '[:lower:]')
             downloadedFileName="message."+$lower_locale+".json"
-            
+
+            echo "curl --location --request GET 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/locales/${locale}/download?file_format=simple_json' \
+              --header 'Authorization: token ${PHRASE_TOKEN}'  -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName} --create-dir
+            chmod 775 ${{ github.workspace }}/src/assets/i18n/"
+
             curl --location --request GET 'https://api.phrase.com/v2/projects/${PHRASE_PROJECT_ID}/locales/${locale}/download?file_format=simple_json' \
               --header 'Authorization: token ${PHRASE_TOKEN}'  -o ${{ github.workspace }}/src/assets/i18n/${downloadedFileName} --create-dir
             chmod 775 ${{ github.workspace }}/src/assets/i18n/
@@ -78,6 +82,10 @@ jobs:
           done
 
           ls -lrt ./src/assets/i18n/
+          cat ./src/assets/i18n/message.+de+.json
+          cat ./src/assets/i18n/message.+fr+.json
+          cat ./src/assets/i18n/message.+es+.json
+          cat ./src/assets/i18n/message.+it+.json
           
       - uses: actions/setup-node@v4
         with:
