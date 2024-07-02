@@ -100,7 +100,7 @@ jobs:
           fi
 
       - name: Maven Package
-        run: mvn clean package
+        run: mvn clean package -s settings.xml
 
       ## Remove Local database
       - name: Remove Postgres for Unit Test
