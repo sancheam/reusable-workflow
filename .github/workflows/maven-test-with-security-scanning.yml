@@ -80,6 +80,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Artifactory Settings.xml
+        run : |
+          sed -i "s#REPO_USERNAME#$ARTIFACTORY_USERNAME#" settings.xml
+          sed -i "s#REPO_TOKEN#$ARTIFACTORY_ACCESSTOKEN#" settings.xml
+
       ## Setup Local database
       - name: Setup Postgres for Unit Test
         run: |
