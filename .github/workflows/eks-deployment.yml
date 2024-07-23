@@ -83,7 +83,7 @@ jobs:
         run: |
           aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }}
 
-      - name: Sip Con
+      - name: SSM Session Manager
         if: inputs.aws_environment == 'PROD'
         run: |
           CLUSTER_API=$(aws eks describe-cluster --name ${{ inputs.eks_name }} --region ${{ env.AWS_REGION }} | jq -r '.cluster.endpoint' | awk -F/ '{print $3}')
