@@ -79,6 +79,13 @@ jobs:
         run: |
           aws sts get-caller-identity
 
+      - name: Sip Con
+        if: inputs.aws_environment == 'PROD'
+        run: |
+          sipcon set region eu-central-1
+          sipcon set useEnvVars True
+          sipcon connect eks --name=${{ inputs.eks_name }} --verbose &
+
       - name: Configure Kube Config
         run: |
           aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }}
