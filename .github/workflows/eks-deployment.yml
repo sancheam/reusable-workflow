@@ -81,10 +81,10 @@ jobs:
 
       - name: Sip Con
         if: inputs.aws_environment == 'PROD'
-        run: |
-          sipcon set region eu-central-1
-          sipcon set useEnvVars True
-          sipcon connect eks --name=${{ inputs.eks_name }} --verbose &
+        uses: sip-automated-compliance/setup-sipcon/@v1.0.0
+        with:
+          cluster: vsm
+          region: eu-central-1
 
       - name: Configure Kube Config
         run: |
