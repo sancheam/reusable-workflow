@@ -79,16 +79,25 @@ jobs:
         run: |
           aws sts get-caller-identity
 
-      - name: Sip Con
-        if: inputs.aws_environment == 'PROD'
-        uses: sip-automated-compliance/setup-sipcon/@v1.0.0
-        with:
-          cluster: vsm
-          region: eu-central-1
-
       - name: Configure Kube Config
         run: |
           aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ inputs.eks_name }}
+
+      - name: Sip Con
+        if: inputs.aws_environment == 'PROD'
+        run: |
+          CLUSTER_API=$(aws eks describe-cluster --name ${{ inputs.eks_name }} --region ${{ env.AWS_REGION }} | jq -r '.cluster.endpoint' | awk -F/ '{print $3}')
+          aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${{ env.AWS_REGION }}
+          sed -ie "s/https:\/\/$CLUSTER_API/https:\/\/$CLUSTER_API:8443/" ~/.kube/config
+          sudo -- sh -c "echo 127.0.0.1 $CLUSTER_API >> /etc/hosts"
+
+          INSTANCE_ID=`aws ec2 describe-instances --filters Name=tag:Name,Values=BastionHost Name=instance-state-name,Values=running --query "Reservations[*].Instances[*].InstanceId" --region ${{ env.AWS_REGION }} --output text`
+          nohup aws ssm start-session \
+          --target $INSTANCE_ID \
+          --document-name AWS-StartPortForwardingSessionToRemoteHost \
+          --parameters '{"host":["'"$CLUSTER_API"'"],"portNumber":["443"], "localPortNumber":["8443"]}' \
+          --region ${{ env.AWS_REGION }} > nohup.out &
+          for attempt in {1..20}; do sleep 1; if grep "Waiting for connections..." nohup.out; then echo ready; break; fi; echo waiting...; done
 
       - name: Helm Deployment
         run: |
