@@ -86,8 +86,7 @@ jobs:
       - name: SSM Session Manager
         if: inputs.aws_environment == 'PROD'
         run: |
-          CLUSTER_API=$(aws eks describe-cluster --name ${{ inputs.eks_name }} --region ${{ env.AWS_REGION }} | jq -r '.cluster.endpoint' | awk -F/ '{print $3}')
-          aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${{ env.AWS_REGION }}
+          CLUSTER_API=$(aws eks describe-cluster --region ${{ env.AWS_REGION }} --name ${{ inputs.eks_name }} | jq -r '.cluster.endpoint' | awk -F/ '{print $3}')
           sed -ie "s/https:\/\/$CLUSTER_API/https:\/\/$CLUSTER_API:8443/" ~/.kube/config
           sudo -- sh -c "echo 127.0.0.1 $CLUSTER_API >> /etc/hosts"
 
