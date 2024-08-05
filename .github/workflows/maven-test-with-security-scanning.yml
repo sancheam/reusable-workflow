@@ -106,7 +106,6 @@ jobs:
           cat settings.xml
 
       - name: Maven Package
-        continue-on-error: true
         run: mvn clean package -s settings.xml
 
       ## Remove Local database
