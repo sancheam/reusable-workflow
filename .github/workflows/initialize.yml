@@ -16,7 +16,7 @@ on:
         value: ${{ jobs.initialize.outputs.version }}
 jobs:
   initialize:
-    runs-on: [road-runner, small]
+    runs-on: [os-small-amd64-linux]
     outputs:
       git_branch: ${{ steps.set_git_branch.outputs.git_branch }}
       git_sha_short: ${{ steps.set_git_branch.outputs.git_sha_short }}

@@ -41,7 +41,7 @@ jobs:
       PHRASE_TOKEN: ${{ secrets.PHRASE_TOKEN }}
       PHRASE_DEV_EN_LOCALE_ID: 295bfb8c33dfb82806569ebce4cfb461
       LANGUAGES_LIST: "DE,FR,ES,IT"
-    runs-on: [road-runner, small]
+    runs-on: [os-medium-amd64-linux]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

@@ -53,7 +53,7 @@ jobs:
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       NODE_OPTIONS: --max_old_space_size=4096
-    runs-on: [road-runner, medium]
+    runs-on: [os-medium-amd64-linux]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

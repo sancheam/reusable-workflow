@@ -55,7 +55,7 @@ jobs:
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
       ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
       ARTIFACTORY_ACCESSTOKEN: ${{ secrets.ARTIFACTORY_ACCESSTOKEN }}
-    runs-on: [road-runner, small]
+    runs-on: [os-medium-amd64-linux]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
