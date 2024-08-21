@@ -38,6 +38,10 @@ on:
         required: false
         type: string
         default: 'false'
+      security_check_bypass:
+        required: false
+        type: boolean
+        default: true
 jobs:
   security-scanning:
     env: 
@@ -139,12 +143,12 @@ jobs:
             ${SONAR_SCANNER_IMAGE}
 
       - name: Sonarqube Quality Gate
-        continue-on-error: true
+        continue-on-error: ${{ inputs.security_check_bypass }}
         run: |
           curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
-        continue-on-error: true
+        continue-on-error: ${{ inputs.security_check_bypass }}
         run: |
           if [[ '${{ inputs.blackduck_rapid_scan }}' == 'false' ]]; then
             echo "Running BlackDuck Scan"
