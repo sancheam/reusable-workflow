@@ -1,5 +1,5 @@
 
-name: Sonarqube and BlackDuck Scan
+name: Sonarqube, BlackDuck and SecHub Scan
 on:
   workflow_call:
     secrets:
@@ -8,6 +8,10 @@ on:
       BLACKDUCK_TOKEN:
         required: true
       NPM_TOKEN:
+        required: true
+      SECHUB_USERID:
+        required: true
+      SECHUB_APITOKEN:
         required: true
     inputs:
       git_branch:
@@ -35,6 +39,14 @@ on:
       npm-test-extra-args:
         required: true
         type: string
+      security_check_bypass:
+        required: false
+        type: boolean
+        default: true
+      sechub_branch:
+        required: false
+        type: string
+        default: 'develop'
 
 jobs:
   security-scanning:
@@ -53,6 +65,10 @@ jobs:
       BLACKDUCK_PROJECT_VERSION: ${{ inputs.blackduck_project_version }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       NODE_OPTIONS: --max_old_space_size=4096
+      SECHUB_APITOKEN: ${{ secrets.SECHUB_APITOKEN }}
+      SECHUB_USERID: ${{ secrets.SECHUB_USERID }}
+      SECHUB_BRANCH: ${{ inputs.sechub_branch }}
+      SECHUB_PROJECT_KEY: ${{ inputs.service_name }}
     runs-on: [os-medium-amd64-linux]
     steps:
       - name: Checkout repository
@@ -148,3 +164,12 @@ jobs:
               --detect.blackduck.scan.mode="RAPID" \
               --detect.bom.aggregate.name="aggregated.bdio" \
           fi
+      - name: Sechub Scan
+        continue-on-error: ${{ inputs.security_check_bypass }}
+        uses: sip-shared-libraries/sechub-scan-gha@master
+        with:
+          sechub-project: 'vsm-stm'
+          sechub-api-token: ${SECHUB_APITOKEN}
+          sechub-userid: ${SECHUB_USERID}
+          sechub-server: 'https://sechub.corpinter.net'
+          sechub-label: '${SECHUB_PROJECT_KEY}=${SECHUB_BRANCH}'  
