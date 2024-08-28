@@ -210,7 +210,7 @@ jobs:
         uses: sip-shared-libraries/sechub-scan-gha@master
         with:
           sechub-project: 'vsm-stm'
-          sechub-api-token: '${SECHUB_APITOKEN}'
-          sechub-userid: '${SECHUB_USERID}'
+          sechub-api-token: $SECHUB_APITOKEN
+          sechub-userid: $SECHUB_USERID
           sechub-server: 'https://sechub.corpinter.net'
           sechub-label: '${SECHUB_PROJECT_KEY}=${SECHUB_BRANCH}'  
