@@ -206,7 +206,7 @@ jobs:
               --detect.blackduck.rapid.compare.mode=BOM_COMPARE_STRICT
           fi
       - name: Sechub Scan
-        continue-on-error: ${{ inputs.security_check_bypass }
+        continue-on-error: ${{ inputs.security_check_bypass }}
         uses: sip-shared-libraries/sechub-scan-gha@master
         with:
           sechub-project: 'vsm-stm'
