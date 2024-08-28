@@ -172,4 +172,4 @@ jobs:
           sechub-api-token: ${SECHUB_APITOKEN}
           sechub-userid: ${SECHUB_USERID}
           sechub-server: 'https://sechub.corpinter.net'
-          sechub-label: '${SECHUB_PROJECT_KEY}=${SECHUB_BRANCH}'  
+          sechub-label: '${SECHUB_PROJECT_KEY}-${SECHUB_BRANCH}'  
