@@ -38,7 +38,7 @@ on:
         type: string
 
 jobs:
-  helm_preconfiguration:
+  helm_k8s_aws_cli:
     runs-on: [os-small-amd64-linux]
     steps:
       - name: Checkout repository
