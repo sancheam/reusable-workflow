@@ -29,6 +29,10 @@ on:
         required: false
         type: boolean
         default: true
+      aws_role:
+        required: false
+        type: string
+        default: TeamAdmin
       cli:
         required: true
         type: string
@@ -62,7 +66,7 @@ jobs:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/TeamAdmin
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ inputs.aws_role }}
           role-skip-session-tagging: true
 
       - name: Get Caller Identity
