@@ -22,8 +22,9 @@ on:
         required: true
         type: string
       eks_name:
-        required: true
+        required: false
         type: string
+        default: vsm
       helm-enabled:
         required: false
         type: boolean
