@@ -18,7 +18,7 @@ on:
       AWS_REGION:
         required: true
     inputs:
-      aws_environment:
+      helm_environment:
         required: true
         type: string
       eks_name:
@@ -28,24 +28,33 @@ on:
 jobs:
   helm_preconfiguration:
     runs-on: [os-small-amd64-linux]
-    env: 
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: AWS_ACCESS_KEY_ID_${{ inputs.aws_environment }}
-      AWS_SECRET_ACCESS_KEY: AWS_SECRET_ACCESS_KEY_${{ inputs.aws_environment }}
-      AWS_ACCOUNT_ID: ACCOUNT_ID_${{ inputs.aws_environment }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Set AWS environment
+        run: |
+          if [[ ${{ inputs.helm_environment }} != "prod" ]]; then
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_NONPROD }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_NONPROD }}" >> $GITHUB_ENV
+            echo "AWS_ACCOUNT_ID=${{ secrets.ACCOUNT_ID_NONPROD }}" >> $GITHUB_ENV
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          else 
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_PROD }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}" >> $GITHUB_ENV
+            echo "AWS_ACCOUNT_ID=${{ secrets.ACCOUNT_ID_PROD }}" >> $GITHUB_ENV
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          fi
+
       - name: Configure AWS Credentials 
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets[env.AWS_ACCESS_KEY_ID] }}
-          aws-secret-access-key: ${{ secrets[env.AWS_SECRET_ACCESS_KEY] }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ secrets[env.AWS_ACCOUNT_ID] }}:role/TeamAdmin
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/TeamAdmin
           role-skip-session-tagging: true
 
       - name: Get Caller Identity
