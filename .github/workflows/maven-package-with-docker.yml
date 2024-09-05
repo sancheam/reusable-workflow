@@ -60,6 +60,19 @@ jobs:
       - name: Git Pull
         run: git pull origin ${{ inputs.git_branch }}
 
+      - name: Check if the latest commit has 'Merge branch'
+        run: |
+          # Get the latest commit message
+          commit_message=$(git log -1 --pretty=%B)
+
+          # Check if it contains "Merge branch"
+          if echo "$commit_message" | grep -iq "Merge branch"; then
+            echo "The latest commit is a merge conflict commit."
+            exit 0
+          else
+            echo "Proceed with workflow"
+          fi
+
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
