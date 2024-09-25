@@ -158,6 +158,8 @@ jobs:
       - name: Sonarqube Quality Gate
         continue-on-error: ${{ inputs.security_check_bypass }}
         run: |
+          ## wait for quality gate result
+          sleep 5s
           curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
