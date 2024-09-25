@@ -115,13 +115,15 @@ jobs:
         run: |
           docker run \
             --rm \
-            -e SONAR_HOST_URL="http://${SONAR_HOST}"  \
+            -e SONAR_HOST_URL="${SONAR_HOST}"  \
             -v "${{ github.workspace }}:/usr/src" \
             ${SONAR_SCANNER_IMAGE}
 
       - name: Sonarqube Quality Gate
         continue-on-error: true
         run: |
+          ## wait for quality gate result
+          sleep 5s
           curl --insecure -u${SONAR_TOKEN}: ${SONAR_HOST}/api/qualitygates/project_status?projectKey=${SONAR_PROJECT_KEY}'&'branch=${SONAR_BRANCH}  --noproxy '*' | jq .projectStatus.status | grep OK
 
       - name: BlackDuck Scan
