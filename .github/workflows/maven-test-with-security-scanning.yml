@@ -102,6 +102,8 @@ jobs:
         run: |
           if [[ '${{ inputs.setup_local_database }}' == 'true' ]]; then
             echo "Setup Postgres for Unit Test"
+            echo "BLACKDUCK_PHASE value is: $BLACKDUCK_PHASE"
+            echo "SONAR_BRANCH value is: $SONAR_BRANCH"
 
             docker rm -f test-postgres || true
             docker run --name test-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d registry-emea.app.corpintra.net/dmo/postgresql@sha256:e1e915f72f648f55356b53cc5a4bc2f0af34b27bb202cd61eb94801c20eaf883
