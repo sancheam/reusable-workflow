@@ -2,19 +2,6 @@
 name: Sonarqube, BlackDuck, Sechub Scan
 on:
   workflow_call:
-    secrets:
-      SONAR_TOKEN:
-        required: true
-      BLACKDUCK_TOKEN:
-        required: true
-      ARTIFACTORY_USERNAME: ## NEED PREPARE
-        required: true
-      ARTIFACTORY_ACCESSTOKEN: ## NEED PREPARE
-        required: true
-      SECHUB_USERID:
-        required: true
-      SECHUB_APITOKEN:
-        required: true
     inputs:
       git_branch:
         required: true
