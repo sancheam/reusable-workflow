@@ -69,13 +69,13 @@ jobs:
 
       - name: Update sonarqube properties and settings.xml
         run: |
-          sed -i "s|SONAR_HOST_URL|$SONAR_HOST|" sonar-project.properties
-          sed -i "s|SONAR_LOGIN|$SONAR_TOKEN|" sonar-project.properties
-          sed -i "s|SONAR_PROJECT_KEY|$SONAR_PROJECT_KEY|" sonar-project.properties
-          sed -i "s|SONAR_BRANCH|$SONAR_BRANCH|" sonar-project.properties
-          sed -i "s|REPO_USERNAME|$ARTIFACTORY_USERNAME|" settings.xml
-          sed -i "s|REPO_TOKEN|$ARTIFACTORY_ACCESSTOKEN|" settings.xml
-  
+          sed -i "s#SONAR_HOST_URL#$SONAR_HOST#" sonar-project.properties
+          sed -i "s#SONAR_LOGIN#$SONAR_TOKEN#" sonar-project.properties
+          sed -i "s#SONAR_PROJECT_KEY#$SONAR_PROJECT_KEY#" sonar-project.properties
+          sed -i "s#SONAR_BRANCH#$SONAR_BRANCH#" sonar-project.properties
+          sed -i "s#REPO_USERNAME#$ARTIFACTORY_USERNAME#" settings.xml
+          sed -i "s#REPO_TOKEN#$ARTIFACTORY_ACCESSTOKEN#" settings.xml
+
           cat sonar-project.properties
           cat settings.xml
         
