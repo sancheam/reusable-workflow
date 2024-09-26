@@ -72,7 +72,7 @@ jobs:
       SECHUB_BRANCH: ${{ inputs.sechub_branch }}
       SECHUB_PROJECT_KEY: ${{ inputs.service_name }}
       
-    runs-on: [os-medium-amd64-linux]
+    runs-on: [self-hosted]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
